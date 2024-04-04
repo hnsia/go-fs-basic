@@ -38,10 +38,10 @@ func main() {
 	// create router
 	router := mux.NewRouter()
 	router.HandleFunc("/api/go/users", getUsers(db)).Methods("GET")
-	router.HandleFunc("/api/go/users", createUsers(db)).Methods("POST")
+	router.HandleFunc("/api/go/users", createUser(db)).Methods("POST")
 	router.HandleFunc("/api/go/users/{id}", getUser(db)).Methods("GET")
 	router.HandleFunc("/api/go/users/{id}", updateUser(db)).Methods("PUT")
-	router.HandleFunc("/api/go/users/{id}", deleteUsers(db)).Methods("DELETE")
+	router.HandleFunc("/api/go/users/{id}", deleteUser(db)).Methods("DELETE")
 
 	// wrap the router with CORS and JSON content type middlewares
 	enhancedRouter := enableCORS(jsonContentTypeMiddleware(router))
@@ -130,5 +130,56 @@ func createUser(db *sql.DB) http.HandlerFunc {
 		}
 
 		json.NewEncoder(w).Encode(u)
+	}
+}
+
+// update user
+func updateUser(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var u User
+		json.NewDecoder(r.Body).Decode(&u)
+
+		vars := mux.Vars(r)
+		id := vars["id"]
+
+		// Execute the update query
+		_, err := db.Exec("UPDATE users SET name = $1, email = $2 WHERE id = $3", u.Name, u.Email, u.Id)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Retrieve the updated user data from the database 
+		var updatedUser User
+		err = db.QueryRow("SELECT id, name, email FROM users WHERE id = $1", id).Scan(&updatedUser.Id, &updatedUser.Name, &updatedUser.Email)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Send the updated user data in the response
+		json.NewEncoder(w).Encode(updatedUser)
+	}
+}
+
+// delete user
+func deleteUser(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		id := vars["id"]
+
+		var u User
+		err := db.QueryRow("SELECT * FROM users WHERE id=$1", id).Scan(&u.Id, &u.Name, &u.Email)
+		if err != nil {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		} else {
+			_, err := db.Exec("DELETE FROM users WHERE id = $1", id)
+			if err != nil {
+				//todo : fix error handling
+				w.WriteHeader(http.StatusNotFound)
+				return
+			}
+
+			json.NewEncoder(w).Encode("User deleted")
+		}
 	}
 }
