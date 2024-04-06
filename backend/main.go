@@ -141,7 +141,7 @@ func updateUser(db *sql.DB) http.HandlerFunc {
 		id := vars["id"]
 
 		// Execute the update query
-		_, err := db.Exec("UPDATE users SET name = $1, email = $2 WHERE id = $3", u.Name, u.Email, u.Id)
+		_, err := db.Exec("UPDATE users SET name = $1, email = $2 WHERE id = $3", u.Name, u.Email, id)
 		if err != nil {
 			log.Fatal(err)
 		}
