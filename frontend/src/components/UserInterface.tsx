@@ -52,7 +52,29 @@ const UserInterface = ({ backendName }: UserInterfaceProps) => {
     <div
       className={`user-interface ${bgColor} ${backendName} w-full max-w-md p-4 my-4 rounded shadow`}
     >
-      test
+      <img
+        src={`/${backendName}logo.svg`}
+        alt={`${backendName} Logo`}
+        className="w-20 h-20 mb-6 mx-auto"
+      />
+      <h2 className="text-xl font-bold text-center text-white mb-6">{`${
+        backendName.charAt(0).toUpperCase() + backendName.slice(1)
+      } Backend`}</h2>
+
+      {/* display users */}
+      <div className="space-y-4">
+        {users.map((user) => (
+          <div
+            key={user.id}
+            className="flex items-center justify-between bg-white p-4"
+          >
+            <CardComponent card={user} />
+            {/* <button onClick={() => deleteUser(user.id)} className={`${btnColor} text-white py-2 px-4 rounded`}>
+                    Delete User
+                </button> */}
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

@@ -6,7 +6,11 @@ interface CardComponentProps {
   email: string;
 }
 
-const CardComponent = ({ email, id, name }: CardComponentProps) => {
+const CardComponent = ({
+  card: { email, id, name },
+}: {
+  card: CardComponentProps;
+}) => {
   return (
     <div className="bg-white shadow-lg rounded-lg p-2 mb-2 hover:bg-gray-100">
       <div className="text-sm text-gray-600">Id: {id}</div>
