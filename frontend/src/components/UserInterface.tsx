@@ -64,6 +64,33 @@ const UserInterface = ({ backendName }: UserInterfaceProps) => {
     }
   };
 
+  // Update a new user
+  const handleUpdateUser = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    try {
+      await axios.put(`${apiUrl}/api/${backendName}/users/${updatedUser.id}`, {
+        name: updatedUser.name,
+        email: updatedUser.email,
+      });
+      setUpdatedUser({ id: "", name: "", email: "" });
+      setUsers(
+        users.map((user) => {
+          if (user.id === parseInt(updatedUser.id)) {
+            return {
+              ...user,
+              name: updatedUser.name,
+              email: updatedUser.email,
+            };
+          }
+          return user;
+        })
+      );
+    } catch (error) {
+      console.error("Error updating user:", error);
+    }
+  };
+
   return (
     <div
       className={`user-interface ${bgColor} ${backendName} w-full max-w-md p-4 my-4 rounded shadow`}
@@ -99,6 +126,43 @@ const UserInterface = ({ backendName }: UserInterfaceProps) => {
           className="w-full p-2 text-white bg-blue-500 rounded hover:bg-blue-600"
         >
           Add User
+        </button>
+      </form>
+
+      {/* Update user */}
+      <form
+        onSubmit={handleUpdateUser}
+        className="mb-6 p-4 bg-blue-100 rounded shadow"
+      >
+        <input
+          placeholder="User Id"
+          value={updatedUser.id}
+          onChange={(e) =>
+            setUpdatedUser({ ...updatedUser, id: e.target.value })
+          }
+          className="mb-2 w-full p-2 border border-gray-300 rounded"
+        />
+        <input
+          placeholder="New Name"
+          value={updatedUser.name}
+          onChange={(e) =>
+            setUpdatedUser({ ...updatedUser, name: e.target.value })
+          }
+          className="mb-2 w-full p-2 border border-gray-300 rounded"
+        />
+        <input
+          placeholder="Email"
+          value={updatedUser.email}
+          onChange={(e) =>
+            setUpdatedUser({ ...updatedUser, email: e.target.value })
+          }
+          className="mb-2 w-full p-2 border border-gray-300 rounded"
+        />
+        <button
+          type="submit"
+          className="w-full p-2 text-white bg-green-500 rounded hover:bg-green-600"
+        >
+          Update User
         </button>
       </form>
 
